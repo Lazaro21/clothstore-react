@@ -4,6 +4,9 @@ import {
 	signInWithRedirect,
 	signInWithPopup,
 	GoogleAuthProvider,
+	createUserWithEmailAndPassword,
+	SignInWithEmailAndPassword,
+	signInWithEmailAndPassword,
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
 
@@ -19,17 +22,24 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 
-const provider = new GoogleAuthProvider();
-provider.setCustomParameters({
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({
 	prompt: "select_account",
 });
 
 export const auth = getAuth();
-export const signInWithGooglePopup = () => signInWithPopup(auth, provider);
+export const signInWithGooglePopup = () =>
+	signInWithPopup(auth, googleProvider);
+export const signInWithGoogleRedirect = () =>
+	signInWithRedirect(auth, googleProvider);
 
 export const db = getFirestore();
 
 export const createUserDocumentFromAuth = async (userAuth) => {
+	if (!userAuth) {
+		// console.log("Couldn\'t find user auth")
+		return;
+	}
 	const userDocRef = doc(db, "users", userAuth.uid);
 
 	console.log(userDocRef);
@@ -42,18 +52,42 @@ export const createUserDocumentFromAuth = async (userAuth) => {
 
 	if (!userSnapshot.exists()) {
 		const { displayName, email } = userAuth;
+
 		const createdAt = new Date();
 
 		try {
 			await setDoc(userDocRef, {
 				displayName,
 				email,
-				createdAt
-			})
-		} catch (error){
-			console.log('error creating the user'.error.message)
+				createdAt,
+			});
+		} catch (error) {
+			console.log("error creating the user".error.message);
 		}
 	}
 	//if user data does not exist
-	return userDocRef
+	return userDocRef;
+};
+
+export const createAuthUserWithEmailAndPasword = async (email, password) => {
+	if (!email || !password) return;
+	return await createUserWithEmailAndPassword(auth, email, password);
+};
+
+export const SignInAuthUserWithEmailAndPassword = (email, password) => {
+	console.log('haven\'t entered if')
+	if (!email || !password) {
+		console.log(email, password)
+	}
+	
+
+	console.log("inside sign in auth")
+	signInWithEmailAndPassword(auth, email, password)
+		.then((userCredential) => {
+			const user = userCredential.user;
+			console.log(user)
+		})
+		.catch((error) => {
+			console.log(error);
+		});
 };
