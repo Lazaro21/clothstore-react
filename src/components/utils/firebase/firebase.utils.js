@@ -5,7 +5,6 @@ import {
 	signInWithPopup,
 	GoogleAuthProvider,
 	createUserWithEmailAndPassword,
-	SignInWithEmailAndPassword,
 	signInWithEmailAndPassword,
 } from "firebase/auth";
 import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
@@ -74,20 +73,9 @@ export const createAuthUserWithEmailAndPasword = async (email, password) => {
 	return await createUserWithEmailAndPassword(auth, email, password);
 };
 
-export const SignInAuthUserWithEmailAndPassword = (email, password) => {
-	console.log('haven\'t entered if')
-	if (!email || !password) {
-		console.log(email, password)
-	}
-	
+export const signInAuthUserWithEmailAndPassword = async (email, password) => {
+	if (!email || !password) return;
+  
+	return await signInWithEmailAndPassword(auth, email, password);
+  };
 
-	console.log("inside sign in auth")
-	signInWithEmailAndPassword(auth, email, password)
-		.then((userCredential) => {
-			const user = userCredential.user;
-			console.log(user)
-		})
-		.catch((error) => {
-			console.log(error);
-		});
-};
