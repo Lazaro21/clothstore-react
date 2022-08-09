@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 
 import {
 	createAuthUserWithEmailAndPasword,
@@ -30,30 +30,17 @@ const SignUpForm = () => {
 		
 	};
 
-	const handleSubmit = (event) => {
+	const handleSubmit = async (event) => {
 		event.preventDefault();
-		const response = createAuthUserWithEmailAndPasword(email, password);
-
+		const {user} = await createAuthUserWithEmailAndPasword(email, password);
+		resetFormFields()
 		if (password !== confirmPassword) {
-			alert("passords do not match");
+			alert("passwords do not match");
 		}
 
+		createUserDocumentFromAuth(user, displayName)
 
-		response
-			.then((userCredential) => {
-				// Signed in
-				const user = userCredential.user;
-				user.displayName = displayName;
-				createUserDocumentFromAuth(user);
-				resetFormFields();
-			})
-			.catch((error) => {
-				if (error.code === "auth/email-already-in-use") {
-					alert("Cannot create user, email already in use");
-				} else {
-					console.log(error);
-				}
-			});
+
 	};
 
 	return (
