@@ -9,7 +9,6 @@ const ProductCard = ({ product }) => {
 	const { name, price, imageUrl } = product;
 	const { addItemToCart } = useContext(CartContext);
 
-
 	const handleAddToCart = () => {
 		addItemToCart(product);
 	};
