@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 
 import { CartContext } from "../../context/cart.context";
 
-import Button from "../button/button.component";
+import Button, { BUTTON_TYPE_CLASSES } from "../button/button.component";
 import CartItem from "../cart-item/cart-item.component";
 
-import "./cart-dropdown.styles.scss";
+import { CartDropdownContainer, CartItems, EmptyMessage } from "./cart-dropdown.styles.jsx";
 
 const CartDropdown = () => {
 	const { cartItems, cartTotal } = useContext(CartContext);
@@ -14,21 +14,30 @@ const CartDropdown = () => {
 	const navigate = useNavigate();
 
 	const goToCheckoutHandler = () => {
-		navigate('/checkout')
-	}
+		navigate("/checkout");
+	};
 
 	return (
-		<div className="cart-dropdown-container">
-			<div className="cart-items">
-				{cartItems.map((product) =>
-					product.quantity > 0 ? (
+		<CartDropdownContainer>
+			<CartItems>
+				{cartItems.length ? (
+					cartItems.map((product) => (
 						<CartItem key={product.id} product={product} />
-					) : null
+					))
+				) : (
+					<EmptyMessage>Your Cart is Empty</EmptyMessage>
 				)}
-				<span>Total: ${cartTotal}</span>
-				<Button buttonType="inverted" onClick={goToCheckoutHandler}>GO TO CHECKOUT</Button>
-			</div>
-		</div>
+				{
+					cartItems.length ? <span>Total: ${cartTotal}</span> : ":("
+				}
+				<Button
+					buttonType={BUTTON_TYPE_CLASSES.inverted}
+					onClick={goToCheckoutHandler}
+				>
+				CHECKOUT
+				</Button>
+			</CartItems>
+		</CartDropdownContainer>
 	);
 };
 

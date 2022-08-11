@@ -9,7 +9,16 @@ import {
 	signOut,
 	onAuthStateChanged,
 } from "firebase/auth";
-import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+	getFirestore,
+	doc,
+	getDoc,
+	setDoc,
+	collection,
+	writeBatch,
+	query,
+	getDocs,
+} from "firebase/firestore";
 
 const firebaseConfig = {
 	apiKey: "AIzaSyCDi4BrOSC0csPfQbn2TACpr92Xpw3DlCQ",
@@ -36,6 +45,36 @@ export const signInWithGoogleRedirect = () =>
 
 export const db = getFirestore();
 
+export const addCollectionAndDocuments = async (
+	collectionKey,
+	objectsToAdd
+) => {
+	const collectionRef = collection(db, collectionKey);
+	const batch = writeBatch(db);
+
+	objectsToAdd.forEach((object) => {
+		const docRef = doc(collectionRef, object.title.toLowerCase());
+		batch.set(docRef, object);
+	});
+
+	await batch.commit();
+	console.log("Done");
+};
+
+export const getCategoriesAndDocuments = async () => {
+	const collectionRef = collection(db, "categories");
+	const q = query(collectionRef);
+
+	const querySnapshot = await getDocs(q);
+	const categoryMap = querySnapshot.docs.reduce((acumulator, docSnapshot) => {
+		const { title, items } = docSnapshot.data();
+		acumulator[title.toLowerCase()] = items;
+		return acumulator
+	}, {})
+
+	return categoryMap
+};
+
 export const createUserDocumentFromAuth = async (
 	userAuth,
 	displayNameAuth = null
@@ -55,7 +94,9 @@ export const createUserDocumentFromAuth = async (
 	//if user data exists
 
 	if (!userSnapshot.exists()) {
-		userAuth.displayName ? userAuth.displayName = userAuth.displayName : userAuth.displayName = displayNameAuth;
+		userAuth.displayName
+			? (userAuth.displayName = userAuth.displayName)
+			: (userAuth.displayName = displayNameAuth);
 		const { displayName, email } = userAuth;
 
 		const createdAt = new Date();
